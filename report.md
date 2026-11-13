@@ -1,58 +1,67 @@
 # IST 402 — Assignment 4, Part 4.1: Market Data and Dashboard
 
 **Project:** ATLAS — Market Intelligence  
-**Student:** [YOUR NAME]  
-**GitHub repository:** [PASTE GITHUB REPOSITORY URL]  
-**Submitted code commit:** `[PASTE FULL GIT COMMIT HASH]`  
-**Demo video (30–60 seconds):** [PASTE ACCESSIBLE VIDEO LINK]
+**Student:** Prothama Sinha  
+**GitHub repository:** https://github.com/prothamasinha/atlas-market-dashboard  
+**Submitted code version (commit):** [`ea1f5ee17ce30ee9ce2e7640e9367a064f951230`](https://github.com/prothamasinha/atlas-market-dashboard/commit/ea1f5ee17ce30ee9ce2e7640e9367a064f951230)  
+**Demo video:** https://drive.google.com/file/d/1-RYkLf67IzoSllhk4ALRK_b1kYobiWL9/view?usp=sharing
 
 ## Summary
 
-ATLAS is a client-server market-monitoring dashboard for BTC-USD. Its Python/FastAPI backend subscribes to streaming quotes from Yahoo Finance using `yfinance`, forwards observations through a WebSocket endpoint, and saves received observations in SQLite. The browser-based frontend uses Lightweight Charts to visualize price action as one-minute candlesticks and provides quote information, source age, and feed status. A retrieval API exposes saved observations for chart history and replay work.
+ATLAS is a client-server market monitoring dashboard for the BTC-USD instrument. The FastAPI backend subscribes to Yahoo Finance quotes through `yfinance`, forwards incoming observations to connected browsers over WebSockets, and persists observations in a local SQLite database. The frontend uses TradingView Lightweight Charts to display one-minute price candles and volume estimates. It shows the live quote, its source, source-data age, connection status, and information about stored observations. A retrieval endpoint loads observations from SQLite for historical chart display and replay development.
 
-## Completed implementation and key decisions
+## Completed work and design decisions
 
-- **Market data and transport:** Yahoo Finance BTC-USD streaming quote feed; FastAPI backend; browser WebSocket at `/ws`.
-- **Visualization:** One-minute OHLC candles assembled from incoming price observations, displayed with TradingView Lightweight Charts; volume display based on changes in cumulative daily volume when available.
-- **Freshness and health:** The UI shows latest price, data source (Yahoo Finance), age of the source timestamp, connection state, and source/receipt information.
-- **Persistence:** SQLite file `backend/market.db`; backend `save_observation` records source and receipt times, price, identifier, a revision number, and the raw quote payload.
-- **Retrieval:** `GET /api/observations` reads stored observations. `GET /dashboard` serves the frontend. The dashboard uses saved observations to populate historical chart data.
+- **Live streaming:** A `yfinance` BTC-USD feed sends quote updates to the FastAPI server; clients receive forwarded `tick` and feed-status messages over the `/ws` WebSocket endpoint.
+- **Charts:** The browser aggregates incoming prices into minute-based OHLC candles and visualizes them using Lightweight Charts. The displayed volume is inferred from changes in a reported cumulative day-volume value rather than validated trade-by-trade volume.
+- **Data visibility:** The dashboard displays latest price, source name, feed health, source timestamp, receipt timestamp, and source age; it distinguishes live status from connection problems.
+- **Persistence:** SQLite stores symbol, observation ID, source time, receipt time, price, raw JSON, cumulative volume, and revision number. The schema includes uniqueness on `(symbol, observation_id, revision)`.
+- **Retrieval:** `GET /api/observations` returns stored observations from SQLite. `GET /dashboard` serves the browser interface. The ATLAS dashboard can load historical observations from this API.
+- **Structure:** Backend and frontend files are separated; project instructions and architecture notes are maintained in the repository.
 
-## Architecture and database design
+## Architecture, database, and startup
 
-`Yahoo Finance -> yfinance WebSocket client -> FastAPI -> /ws -> browser chart`  
-`FastAPI -> SQLite market_observations -> GET /api/observations -> browser`.
+**Data flow:** `Yahoo Finance → yfinance → FastAPI → WebSocket (/ws) → browser chart`. In parallel, `FastAPI → SQLite → REST API (/api/observations) → browser historical chart`.
 
-The `market_observations` table records `observation_id`, `symbol`, `source`, `source_time_ms`, `received_at`, `revision`, `price`, `cumulative_volume`, and `raw_json`, with a uniqueness constraint on (`symbol`, `observation_id`, `revision`). A `candles` table was created with minute timestamps, OHLC, volume, revision, and `is_complete`, but full backend candle persistence/completion has not yet been demonstrated.
+The `market_observations` table records the original source and receipt timestamps, observation identity, version, and payload. A separate `candles` table has fields for OHLC, volume, revision, and `is_complete`, but the current submitted code has not demonstrated complete server-side candle persistence and finalization.
 
-For local startup, install `fastapi`, `uvicorn[standard]`, and `yfinance`, then run `python3 backend/database.py` and `python3 -m uvicorn backend.main:app --port 8001`. Open `http://127.0.0.1:8001/dashboard`. No credentials are required in the current local setup; secrets should not be committed to GitHub.
+From the GitHub repository root, the local startup procedure is:
 
-## Verification and evidence
+```bash
+python3 -m pip install fastapi "uvicorn[standard]" yfinance websockets
+python3 backend/database.py
+python3 -m uvicorn backend.main:app --port 8001
+```
 
-| Test | Result | Evidence to include |
-|---|---|---|
-| Direct Yahoo Finance subscription for BTC-USD | **Passed** — terminal displayed streaming quotes | [Link to screenshot or video timestamp] |
-| Browser WebSocket through FastAPI | **Passed** — `test_ws.py` received a `tick` message | [Link to screenshot or video timestamp] |
-| Live dashboard visualization | **Passed visually** — price, candles, live status, and source age were visible | [Link to screenshot or video timestamp] |
-| SQLite saving | **Passed** — observations were counted in SQLite | [Link to screenshot or video timestamp] |
-| Retrieval API | **Passed** — `/api/observations` returned HTTP 200 and saved observations | [Link to screenshot or video timestamp] |
-| Replay behavior | **Not independently verified**; Replay control is displayed | [Add result only after testing] |
-| Completed candle persistence | **Not yet verified** | [Add result if completed] |
-| Duplicate, revision, out-of-order tests | **Incomplete** — a UNIQUE constraint error was seen during streaming | [Add result if fixed] |
-| Unavailable-feed scenario | **Not formally demonstrated**; backend includes an unavailable status path | [Add result if tested] |
+Open `http://127.0.0.1:8001/dashboard`. The app is run locally and does not require hard-coded credentials. `.env`, local SQLite databases, and virtual environments are excluded from version control.
 
-The retrieval API was observed returning 214 saved observations at one point, and the redesigned interface later displayed 500 fetched records. The 500 represents the retrieval limit and should not be presented as the total database row count.
+## Verification results
 
-## Limitations and next steps
+| Check | Result |
+|---|---|
+| Direct Yahoo Finance stream | **Passed:** BTC-USD quote messages appeared in the terminal. |
+| FastAPI-to-client WebSocket | **Passed:** `backend/test_ws.py` received a `tick` message. |
+| Dashboard visualization | **Passed visually:** live price, minute candles, feed status, and source age were shown. |
+| SQLite insert and retrieval | **Passed:** observation count increased; `GET /api/observations` returned an HTTP 200 response and 214 records during one check. |
+| Historical chart history | **Observed:** ATLAS subsequently loaded 500 saved records (the API query limit, not necessarily the database total). |
+| Replay control | **Implemented in UI, but end-to-end playback not independently verified.** |
+| Candle completion/persistence | **Not yet verified end to end.** |
+| Duplicate, revision, out-of-order handling | **Partially implemented, not passing all tests:** a SQLite `UNIQUE constraint failed` error was observed when storing a revision. |
+| Feed-unavailable condition | **Error/status handling present in backend; controlled demonstration not verified.** |
 
-Yahoo Finance's feed availability and update cadence are outside the app's control. The volume calculation from cumulative-day-volume deltas is an approximation, not verified per-trade volume. Candles are currently generated in the browser; backend persistence and completion flags are not fully proven. Replay, feed-failure simulation, and deterministic duplicate/revision/out-of-order tests require final verification. During testing, SQLite produced a `UNIQUE constraint failed` error for observation revisions; this is a known outstanding issue and should not be described as resolved without retesting. If the feed becomes unavailable, recorded observations provide a basis for replay development, but no verified fallback workflow is claimed here.
+**Working evidence:** [30–60-second demo video](https://drive.google.com/file/d/1-RYkLf67IzoSllhk4ALRK_b1kYobiWL9/view?usp=sharing); [WebSocket test source](https://github.com/prothamasinha/atlas-market-dashboard/blob/ea1f5ee17ce30ee9ce2e7640e9367a064f951230/backend/test_ws.py); [database implementation](https://github.com/prothamasinha/atlas-market-dashboard/blob/ea1f5ee17ce30ee9ce2e7640e9367a064f951230/backend/database.py); [dashboard source](https://github.com/prothamasinha/atlas-market-dashboard/blob/ea1f5ee17ce30ee9ce2e7640e9367a064f951230/frontend/index.html). The video link must be shared with the instructor as **Anyone with the link → Viewer**.
 
-## Supporting documents and source
+## Known limitations and remaining work
 
-- [Project README](README.md)
-- [Agent instructions](AGENTS.md)
-- [Design notes](docs/design.md)
-- [Source repository](PASTE_GITHUB_REPOSITORY_URL)
-- [Demonstration video](PASTE_ACCESSIBLE_VIDEO_URL)
+The availability and update rate of the Yahoo Finance stream depend on the external service. The quotes are not a guaranteed exchange execution feed. Minute candles are assembled in the browser and may be incomplete; the submitted version does not yet demonstrate completed-candle storage and replay of finalized and revised candle states. Volume is approximated from cumulative values. Observation deduplication and revision logic needs a fix for the observed uniqueness error, followed by reproducible duplicate, revised, and out-of-order tests. End-to-end replay and a forced unavailable-feed demonstration remain to be verified. These limitations are disclosed rather than represented as completed functionality.
 
-**Submission:** Upload only this `report.md` file to Canvas. Source files remain in the linked GitHub repository. The repository and video must be accessible to the instructor.
+## Repository documentation
+
+- [README and setup instructions](https://github.com/prothamasinha/atlas-market-dashboard/blob/ea1f5ee17ce30ee9ce2e7640e9367a064f951230/README.md)
+- [Agent instructions](https://github.com/prothamasinha/atlas-market-dashboard/blob/ea1f5ee17ce30ee9ce2e7640e9367a064f951230/AGENTS.md)
+- [Design and data-flow notes](https://github.com/prothamasinha/atlas-market-dashboard/blob/ea1f5ee17ce30ee9ce2e7640e9367a064f951230/docs/design.md)
+- [Full source repository](https://github.com/prothamasinha/atlas-market-dashboard)
+- [Exact submitted application-code commit](https://github.com/prothamasinha/atlas-market-dashboard/commit/ea1f5ee17ce30ee9ce2e7640e9367a064f951230)
+- [Short demo recording](https://drive.google.com/file/d/1-RYkLf67IzoSllhk4ALRK_b1kYobiWL9/view?usp=sharing)
+
+**Canvas submission:** Upload this `report.md` only. The application source code and supporting documents remain in GitHub.
