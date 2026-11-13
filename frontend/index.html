@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#080e17" />
+  <title>ATLAS — Market Intelligence</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://unpkg.com/lightweight-charts@5/dist/lightweight-charts.standalone.production.js"></script>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #080e17;
+      --surface: #101926;
+      --surface-2: #141e2d;
+      --stroke: #273344;
+      --stroke-soft: #1d2a3b;
+      --text: #f2f6fc;
+      --muted: #8191a8;
+      --green: #50d7ab;
+      --red: #f07c87;
+      --blue: #8cb5ff;
+      --accent: #b4c9ec;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-width: 320px;
+      background: radial-gradient(ellipse 57% 45% at 92% -10%, rgba(48, 88, 138, .16), transparent 80%),
+                  radial-gradient(ellipse 45% 35% at -10% 46%, rgba(19, 77, 92, .10), transparent 80%), var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    button, a { -webkit-tap-highlight-color: transparent; }
+    .container { max-width: 1570px; padding: 0 42px 64px; margin: auto; }
+    .topbar { height: 89px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--stroke-soft); gap: 18px; }
+    .brand { display: flex; align-items: center; gap: 13px; }
+    .brand-mark { height: 36px; width: 36px; display: grid; place-items: center; border: 1px solid #416181; border-radius: 11px; background: linear-gradient(135deg, #243e60, #131e2c); box-shadow: inset 0 1px 0 #53759855; }
+    .brand-mark svg { width: 23px; height: 23px; }
+    .brand-name { font: 800 19px/1 'Manrope', sans-serif; letter-spacing: .17em; }
+    .brand-sub { color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing: .15em; margin-top: 6px; }
+    .nav { display: flex; align-items: center; gap: 28px; }
+    .nav a { color: #94a2b6; font-size: 13px; font-weight: 700; text-decoration: none; transition: color .15s; }
+    .nav a:hover, .nav a.active { color: #e9f1ff; }
+    .header-right { display:flex; align-items:center; gap: 14px; }
+    .pill { display: inline-flex; gap: 8px; align-items: center; white-space: nowrap; padding: 9px 12px; border: 1px solid var(--stroke); border-radius: 100px; color: #a9bbd2; background: #121c2a; font-size: 11px; font-weight: 700; letter-spacing: .045em; }
+    .dot { display:inline-block; flex-shrink:0; width:7px; height:7px; border-radius:50%; background:#c6a86b; box-shadow: 0 0 0 3px #b69f651a; }
+    .dot.live { background:var(--green); box-shadow: 0 0 0 3px #50d7ab1e, 0 0 14px #50d7ab75; animation: pulse 2.4s infinite; }
+    .dot.bad { background:var(--red); box-shadow: 0 0 0 3px #f07c871d; animation:none; }
+    @keyframes pulse { 50% { box-shadow: 0 0 0 6px #50d7ab08, 0 0 12px #50d7ab40; } }
+    .section-intro { padding: 44px 0 31px; display:flex; justify-content:space-between; align-items:flex-end; gap:24px; }
+    .eyebrow { color: #9ab1d1; font-size: 11px; font-weight: 800; letter-spacing:.19em; text-transform: uppercase; }
+    h1 { font: 800 clamp(30px, 3.4vw, 43px)/1.17 'Manrope', sans-serif; letter-spacing: -.065em; margin: 13px 0 10px; }
+    .intro-text { color: #8392a9; font-size:14px; margin:0; line-height:1.7; }
+    .intro-aside { color:#9eafc4; font-size:12px; text-align:right; line-height:1.8; padding-bottom:3px; }
+    .intro-aside strong { color: #e3edfa; font-weight:700; }
+    .metric-grid { display:grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap:15px; margin-bottom:20px; }
+    .metric { position:relative; overflow:hidden; min-height:144px; border: 1px solid var(--stroke); border-radius:16px; padding:21px 23px; background: linear-gradient(155deg, #162131, #101926 80%); box-shadow: 0 10px 28px #00000010; }
+    .metric:before { content:""; position:absolute; inset:0 0 auto; height:1px; background:linear-gradient(90deg,transparent,#afc5e32b,transparent); }
+    .metric .top { display:flex; align-items:center; justify-content:space-between; gap:8px; color:#91a3bb; font-size:12px; font-weight:600; }
+    .metric svg { width:18px; height:18px; stroke:#7f96b4; fill:none; stroke-width:1.6; }
+    .metric .big { margin-top:18px; font: 800 clamp(22px,2.2vw,29px)/1.2 'Manrope', sans-serif; letter-spacing:-.05em; font-variant-numeric:tabular-nums; white-space:nowrap; }
+    .metric .small { margin-top:8px; color:#7c8fa7; font-size:11px; line-height:1.5; }
+    .metric .big.green { color:var(--green); }
+    .metric .big.red { color:var(--red); }
+    .metric .big.amber { color:#e0c489; }
+    .workspace { display:grid; grid-template-columns:minmax(0,1fr) 318px; gap:19px; align-items:start; }
+    .panel { border:1px solid var(--stroke); border-radius:17px; background:linear-gradient(150deg,#111c2b,#0e1723 72%); box-shadow:0 20px 60px #0000001d; overflow:hidden; }
+    .panel-header { display:flex; align-items:center; justify-content:space-between; gap:15px; padding:22px 24px 18px; }
+    .instrument { display:flex; align-items:center; gap:12px; }
+    .coin { height:41px; width:41px; flex:none; border-radius:12px; background:linear-gradient(135deg,#f1b55a,#cf8d3f); display:grid; place-items:center; color:#1e2630; font:700 26px/1 'Arial',sans-serif; }
+    .instrument h2 { margin:0; font:800 17px/1.3 'Manrope',sans-serif; letter-spacing:-.035em; }
+    .instrument p { margin:4px 0 0; color:#8296ad; font-size:11px; }
+    .panel-actions { display:flex; align-items:center; gap:8px; }
+    .chip { border:1px solid #304159; border-radius:7px; padding:8px 11px; color:#cad7e8; font-size:11px; background:#182536; font-weight:700; }
+    .heading-row { margin:0 24px; padding:14px 0; display:flex; justify-content:space-between; align-items:center; gap:14px; border-top:1px solid var(--stroke-soft); border-bottom:1px solid var(--stroke-soft); }
+    .heading-row span { color:#8093ad; font-size:11px; }
+    .heading-row strong { font-size:12px; color:#bdcee4; font-weight:700; }
+    .chart-wrap { position:relative; padding:12px 8px 0; }
+    #chart { height:520px; width:100%; }
+    #chart-error { display:none; position:absolute; inset:80px 26px; border:1px dashed #3d4a5b; border-radius:12px; align-items:center; justify-content:center; text-align:center; color:#cbd6e7; line-height:1.7; background:#101926; padding:25px; }
+    .chart-footer { border-top:1px solid var(--stroke-soft); padding:15px 24px 19px; display:flex; flex-wrap:wrap; justify-content:space-between; gap:13px; color:#7c91aa; font-size:11px; line-height:1.65; }
+    .legend { display:flex; align-items:center; flex-wrap:wrap; gap:16px; }
+    .key { height:7px; width:7px; border-radius:2px; display:inline-block; margin-right:5px; }
+    .key.up { background:#50d7ab; } .key.down { background:#f07c87; } .key.vol { background:#819ac0; }
+    .side-col { display:flex; flex-direction:column; gap:16px; }
+    .side-head { display:flex; align-items:center; justify-content:space-between; padding:21px 21px 17px; border-bottom:1px solid var(--stroke-soft); }
+    .side-head h3 { font:800 14px 'Manrope',sans-serif; margin:0; letter-spacing:-.02em; }
+    .side-head small { font-size:10px; color:#8da0ba; }
+    .feed-body { padding:19px 21px 22px; }
+    .source-row { display:flex; gap:12px; align-items:center; padding-bottom:19px; border-bottom:1px solid var(--stroke-soft); }
+    .source-avatar { width:42px; height:42px; border-radius:12px; flex:none; display:grid; place-items:center; color:#d8e7ff; background:#283c59; font:800 17px 'Manrope',sans-serif; }
+    .source-row strong { display:block; font:800 13px 'Manrope',sans-serif; }
+    .source-row small { color:#8d9eb3; font-size:11px; display:block; margin-top:4px; }
+    .detail { margin-top:17px; display:flex; align-items:flex-start; justify-content:space-between; gap:8px; font-size:12px; }
+    .detail .name { color:#8396af; }
+    .detail .val { color:#d4dfed; font-weight:700; text-align:right; font-variant-numeric: tabular-nums; }
+    .operation { padding:19px 21px 22px; }
+    .buttons { display:grid; grid-template-columns:1fr 1fr; gap:9px; }
+    .btn { appearance:none; border:1px solid #3c5474; border-radius:9px; padding:12px 10px; font:700 11px 'DM Sans',sans-serif; cursor:pointer; color:#dce8fa; background:linear-gradient(150deg,#263c59,#1a2b41); transition:transform .15s,border-color .15s,background .15s; }
+    .btn:hover { transform:translateY(-1px); border-color:#83a9de; }
+    .btn.secondary { background:#172332; border-color:#314257; color:#b7c8df; }
+    .btn:disabled { opacity:.5; cursor:not-allowed; transform:none; }
+    .op-help { margin:14px 0 0; color:#7d91aa; font-size:11px; line-height:1.7; }
+    .activity { padding:4px 21px 19px; min-height:190px; }
+    .tick-row { display:flex; align-items:center; justify-content:space-between; padding:11px 0; border-bottom:1px solid var(--stroke-soft); gap:10px; }
+    .tick-row:last-child { border:0; }
+    .tick-symbol { font-size:11px; font-weight:700; color:#c6d4e5; }
+    .tick-time { margin-top:3px; color:#788ba5; font-size:10px; }
+    .tick-value { font:800 12px 'Manrope',sans-serif; color:#e4edf8; font-variant-numeric:tabular-nums; }
+    .muted-placeholder { color:#7186a0; font-size:12px; line-height:1.6; margin:15px 0; }
+    .legal { display:flex; flex-wrap:wrap; align-items:flex-start; justify-content:space-between; gap:16px; padding:27px 0 0; font-size:11px; line-height:1.7; color:#74859a; }
+    .legal strong { color:#9aacbf; }
+    .legal a { color:#afc6e8; text-decoration:none; }
+    .legal a:hover { text-decoration:underline; }
+    @media(max-width:1120px) { .container{padding:0 26px 45px;} .workspace{grid-template-columns:minmax(0,1fr) 270px;} .metric{padding:18px;} .metric .big{font-size:23px;} #chart{height:460px;} }
+    @media(max-width:920px) { .workspace{grid-template-columns:1fr;} .side-col{display:grid; grid-template-columns:repeat(2,minmax(0,1fr));} .activity-panel{grid-column:1/-1;} .metric-grid{grid-template-columns:repeat(2,minmax(0,1fr));} .nav{display:none;} }
+    @media(max-width:580px) { .container{padding:0 14px 35px;} .topbar{height:73px;} .header-right .pill{font-size:10px;} .section-intro{padding:30px 0 20px;} .intro-aside{display:none;} .metric-grid{gap:9px;} .metric{min-height:130px;padding:16px 13px;} .metric .top{font-size:11px;} .metric .big{font-size:20px;} .panel-header{padding:17px 15px;} .heading-row{margin:0 15px;} #chart{height:385px;} .chart-footer{padding:14px 15px;} .side-col{display:flex;} .brand-sub{display:none;} .brand-name{font-size:16px;} .brand-mark{height:33px;width:33px;} }
+    @media(prefers-reduced-motion:reduce) { *,*:before,*:after { animation:none !important; scroll-behavior:auto !important; transition:none !important; } }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="topbar">
+      <div class="brand" aria-label="Atlas Market Intelligence">
+        <div class="brand-mark"><svg viewBox="0 0 28 28" fill="none" stroke="#dbeaff" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20.5 11 12l5.2 4 7.8-10"/><path d="M18.7 6H24v5.3"/><path d="M4 24h20" stroke-opacity=".4"/></svg></div>
+        <div><div class="brand-name">ATLAS</div><div class="brand-sub">Market intelligence</div></div>
+      </div>
+      <nav class="nav" aria-label="Page sections"><a href="#overview" class="active">Overview</a><a href="#terminal">Market terminal</a><a href="#activity">Activity</a></nav>
+      <div class="header-right"><span class="pill"><span id="header-dot" class="dot"></span><span id="header-status">CONNECTING</span></span></div>
+    </header>
+
+    <section class="section-intro" id="overview">
+      <div><div class="eyebrow">Real-time market monitoring <span style="color:#506a87;padding-left:7px">/</span> 01</div><h1>Market overview<span style="color:#7798c7">.</span></h1><p class="intro-text">A clear view of live price action, market observations, and historical playback.</p></div>
+      <div class="intro-aside">MARKET <strong>BTC / USD</strong><br />FEED <strong>YAHOO FINANCE</strong></div>
+    </section>
+
+    <section class="metric-grid" aria-label="Current market metrics">
+      <article class="metric"><div class="top"><span>Latest quoted price</span><svg viewBox="0 0 24 24"><path d="M3 17l6-6 4 3 8-9M15 5h6v6"/></svg></div><div class="big" id="price">$—</div><div class="small" id="price-sub">Waiting for a market observation</div></article>
+      <article class="metric"><div class="top"><span>Source data age</span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/></svg></div><div class="big" id="age">—</div><div class="small">Time since Yahoo source timestamp</div></article>
+      <article class="metric"><div class="top"><span>Stream health</span><svg viewBox="0 0 24 24"><path d="M3 15a9 9 0 0 1 18 0M7 16a5 5 0 0 1 10 0M12 20h.01"/></svg></div><div class="big amber" id="feed-health">Connecting</div><div class="small" id="feed-sub">Establishing WebSocket connection</div></article>
+      <article class="metric"><div class="top"><span>Saved observations</span><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 9h8M8 13h8M8 17h5"/></svg></div><div class="big" id="records">—</div><div class="small">Records loaded from SQLite API</div></article>
+    </section>
+
+    <main class="workspace" id="terminal">
+      <section class="panel" aria-label="Bitcoin market chart">
+        <div class="panel-header"><div class="instrument"><div class="coin">₿</div><div><h2>Bitcoin <span style="color:#8699b0;font-weight:500">/ US Dollar</span></h2><p>BTCUSD · Yahoo Finance · Intraday</p></div></div><div class="panel-actions"><span class="chip">1 MIN</span><span class="chip" id="chart-mode">LIVE</span></div></div>
+        <div class="heading-row"><span>PRICE ACTION &amp; VOLUME</span><strong id="observation-date">No observations yet</strong></div>
+        <div class="chart-wrap"><div id="chart" role="img" aria-label="Interactive candlestick chart with one-minute market price candles and an estimated volume histogram"></div><div id="chart-error">Chart library could not load.<br />Check your internet connection and refresh the page.</div></div>
+        <div class="chart-footer"><div class="legend"><span><i class="key up"></i>Up candle</span><span><i class="key down"></i>Down candle</span><span><i class="key vol"></i>Estimated volume</span></div><span>Candles are based on received quotes, not every market trade.</span></div>
+      </section>
+      <aside class="side-col">
+        <section class="panel"><div class="side-head"><h3>Data connection</h3><small>FEED / 01</small></div><div class="feed-body"><div class="source-row"><div class="source-avatar">Y!</div><div><strong>Yahoo Finance</strong><small>BTC-USD · WebSocket feed</small></div></div><div class="detail"><span class="name">Connection</span><span class="val" id="connection">Connecting</span></div><div class="detail"><span class="name">Source timestamp</span><span class="val" id="source-time">—</span></div><div class="detail"><span class="name">Received at</span><span class="val" id="received-time">—</span></div><div class="detail"><span class="name">Displayed candle</span><span class="val" id="candle-time">—</span></div></div></section>
+        <section class="panel"><div class="side-head"><h3>Playback controls</h3><small>DATA / 02</small></div><div class="operation"><div class="buttons"><button class="btn" id="live-btn" type="button">↗ Live view</button><button class="btn secondary" id="replay-btn" type="button">▶ Replay</button></div><p class="op-help" id="playback-info">Replay the latest saved observations from SQLite. Live streaming resumes when you select Live view.</p></div></section>
+        <section class="panel activity-panel" id="activity"><div class="side-head"><h3>Recent observations</h3><small>LAST 5</small></div><div class="activity" id="activity-list"><p class="muted-placeholder">Waiting for live quotes or stored observations...</p></div></section>
+      </aside>
+    </main>
+    <footer class="legal"><span><strong>ATLAS / MARKET INTELLIGENCE</strong> · IST 402 academic demonstration<br />Volume is an estimate from positive changes in the feed's cumulative day-volume field, not trade-by-trade volume.</span><span><a id="view-records" href="/api/observations" target="_blank" rel="noopener">View SQLite observations ↗</a></span></footer>
+  </div>
+<script>
+(() => {
+  'use strict';
+  const $ = (id) => document.getElementById(id);
+  const base = location.protocol === 'file:' ? 'http://127.0.0.1:8001' : location.origin;
+  const wsURL = base.replace(/^http/, 'ws') + '/ws';
+  $('view-records').href = base + '/api/observations';
+  const money = (x) => '$' + Number(x).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+  const fmtTime = (ms) => new Date(ms).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+  const sourceMs = (data) => {
+    const n = Number(data.source_time_ms ?? data.data?.time ?? data.time);
+    return Number.isFinite(n) && n > 0 ? (n >= 1e12 ? n : n * 1000) : null;
+  };
+  const state = { socket:null, timer:null, reconnect:null, replay:false, replayDone:false, replayTimer:null,
+    rows:[], candle:null, candleVolume:0, lastDayVol:null, lastSource:null, lastReceive:null, connection:'Connecting', log:[] };
+  const chartEl = $('chart');
+  let chart, candleSeries, volumeSeries;
+  if (typeof LightweightCharts === 'undefined' || !LightweightCharts.CandlestickSeries) {
+    $('chart-error').style.display = 'flex';
+  } else {
+    chart = LightweightCharts.createChart(chartEl, {
+      autoSize:true, layout:{background:{type:'solid',color:'#101926'}, textColor:'#8195af',fontFamily:"'DM Sans',sans-serif",fontSize:11},
+      grid:{vertLines:{color:'#1c2a3a'},horzLines:{color:'#1c2a3a'}},
+      crosshair:{vertLine:{color:'#557291',labelBackgroundColor:'#344b67'},horzLine:{color:'#557291',labelBackgroundColor:'#344b67'}},
+      timeScale:{timeVisible:true, secondsVisible:false, borderColor:'#26384c',rightOffset:5,barSpacing:15},
+      rightPriceScale:{borderColor:'#26384c'}, handleScroll:true, handleScale:true,
+    });
+    candleSeries = chart.addSeries(LightweightCharts.CandlestickSeries, {
+      upColor:'#50d7ab',downColor:'#f07c87',borderVisible:false,wickUpColor:'#50d7ab',wickDownColor:'#f07c87',
+      priceFormat:{type:'price',precision:2,minMove:0.01},
+    });
+    candleSeries.priceScale().applyOptions({scaleMargins:{top:.08,bottom:.30}});
+    volumeSeries = chart.addSeries(LightweightCharts.HistogramSeries, {
+      color:'#7995ba',priceFormat:{type:'volume'},priceScaleId:'volume',lastValueVisible:false,priceLineVisible:false,
+    });
+    volumeSeries.priceScale().applyOptions({scaleMargins:{top:.80,bottom:.03}});
+  }
+  function setHealth(status, sub) {
+    $('feed-health').textContent = status;
+    $('feed-sub').textContent = sub;
+    const lower = status.toLowerCase();
+    $('feed-health').className = 'big ' + (lower === 'live' ? 'green' : lower.includes('error') || lower.includes('unavail') || lower.includes('disconnect') ? 'red' : 'amber');
+    const d = $('header-dot');
+    d.className = 'dot' + (lower === 'live' ? ' live' : lower.includes('error') || lower.includes('unavail') || lower.includes('disconnect') ? ' bad' : '');
+    $('header-status').textContent = status.toUpperCase();
+    $('connection').textContent = status;
+  }
+  function setDisplayed(tick, t, received) {
+    $('price').textContent = money(tick.price);
+    $('price-sub').textContent = 'BTC / USD  ·  Quote from Yahoo Finance';
+    $('source-time').textContent = fmtTime(t);
+    $('received-time').textContent = received ? fmtTime(Date.parse(received) || Date.now()) : '—';
+    $('observation-date').textContent = new Date(t).toLocaleDateString([], {month:'short',day:'numeric',year:'numeric'});
+    $('candle-time').textContent = fmtTime(Math.floor(t/60000)*60000);
+    state.lastSource = t;
+  }
+  function setLog(entries) {
+    state.log = entries.slice(-5);
+    const parent = $('activity-list'); parent.replaceChildren();
+    if (!state.log.length) {const p=document.createElement('p');p.className='muted-placeholder';p.textContent='No observations available yet.';parent.appendChild(p);return;}
+    for (const e of [...state.log].reverse()) {
+      const row=document.createElement('div');row.className='tick-row';
+      const left=document.createElement('div');
+      const sym=document.createElement('div');sym.className='tick-symbol';sym.textContent='BTC / USD';
+      const when=document.createElement('div');when.className='tick-time';when.textContent=fmtTime(e.t);
+      left.append(sym,when);
+      const price=document.createElement('span');price.className='tick-value';price.textContent=money(e.price);
+      row.append(left,price);parent.appendChild(row);
+    }
+  }
+  function resetChart() {
+    state.candle = null;state.candleVolume=0;state.lastDayVol=null;
+    if (candleSeries) candleSeries.setData([]);
+    if (volumeSeries) volumeSeries.setData([]);
+  }
+  function validTick(raw) {
+    const tick=raw.data ?? raw;
+    const t=sourceMs(raw);
+    const price=Number(tick.price);
+    return t && Number.isFinite(price) && price > 0 ? {tick,t,price} : null;
+  }
+  function addTick(raw, draw = true, log = true) {
+    const parsed=validTick(raw); if(!parsed)return;
+    const {tick,t,price}=parsed;
+    const minute=Math.floor(t/60000)*60;
+    if(state.candle && minute < state.candle.time) return;
+    let volIncrement=0;
+    if(tick.day_volume != null) {
+      const v=Number(tick.day_volume);
+      if(Number.isFinite(v) && v>=0) {
+        if(state.lastDayVol !== null && v>=state.lastDayVol) volIncrement=v-state.lastDayVol;
+        state.lastDayVol=v;
+      }
+    }
+    if(!state.candle || minute>state.candle.time) {
+      state.candle={time:minute,open:price,high:price,low:price,close:price};
+      state.candleVolume=0;
+    } else {
+      state.candle.high=Math.max(state.candle.high,price);
+      state.candle.low=Math.min(state.candle.low,price);
+      state.candle.close=price;
+    }
+    state.candleVolume+=volIncrement;
+    if(draw && candleSeries) {
+      candleSeries.update(state.candle);
+      volumeSeries.update({time:minute,value:state.candleVolume,color:state.candle.close>=state.candle.open?'#50d7ab65':'#f07c8765'});
+    }
+    setDisplayed(tick,t,raw.received_at);
+    if(log)setLog([...state.log,{t,price}]);
+    return {t,price};
+  }
+  function rowsNormalized(data) {
+    const byId=new Map();
+    for(const r of data) {
+      if(!r.data)continue;
+      const id=r.observation_id || String(sourceMs(r));
+      const old=byId.get(id);
+      if(!old || Number(r.revision||1) >= Number(old.revision||1))byId.set(id,r);
+    }
+    return [...byId.values()].filter(validTick).sort((a,b)=>sourceMs(a)-sourceMs(b)||Number(a.revision||1)-Number(b.revision||1));
+  }
+  function renderHistory(rows) {
+    resetChart();
+    // Build complete visual arrays; setData only once for fast and smooth startup.
+    const candleData=[],volumeData=[];let lastMinute=null;
+    const log=[];
+    for(const row of rows) {
+      const parsed=validTick(row);if(!parsed)continue;
+      const {tick,t,price}=parsed;
+      const minute=Math.floor(t/60000)*60;
+      if(lastMinute !== minute) {
+        state.candle={time:minute,open:price,high:price,low:price,close:price};
+        state.candleVolume=0;lastMinute=minute;
+        candleData.push({...state.candle});
+        volumeData.push({time:minute,value:0,color:'#50d7ab65'});
+      } else {
+        state.candle.high=Math.max(state.candle.high,price);
+        state.candle.low=Math.min(state.candle.low,price);
+        state.candle.close=price;
+      }
+      const dayVol=Number(tick.day_volume);
+      if(tick.day_volume!=null && Number.isFinite(dayVol) && dayVol>=0) {
+        if(state.lastDayVol!==null && dayVol>=state.lastDayVol)state.candleVolume+=dayVol-state.lastDayVol;
+        state.lastDayVol=dayVol;
+      }
+      candleData[candleData.length-1]={...state.candle};
+      volumeData[volumeData.length-1]={time:minute,value:state.candleVolume,color:state.candle.close>=state.candle.open?'#50d7ab65':'#f07c8765'};
+      log.push({t,price});
+      setDisplayed(tick,t,row.received_at);
+    }
+    if(candleSeries) {
+      candleSeries.setData(candleData);
+      volumeSeries.setData(volumeData);
+      chart.timeScale().fitContent();
+    }
+    setLog(log.slice(-5));
+  }
+  async function loadHistory() {
+    try {
+      const res=await fetch(base+'/api/observations',{cache:'no-store'});
+      if(!res.ok)throw new Error('HTTP '+res.status);
+      const data=await res.json();
+      state.rows=rowsNormalized(data.observations || []);
+      $('records').textContent=(data.count ?? state.rows.length).toLocaleString('en-US');
+      if(!state.replay)renderHistory(state.rows);
+      return true;
+    }catch(error) {
+      $('records').textContent='—';
+      $('playback-info').textContent='Could not load saved observations: '+error.message+'. Live quotes can still appear.';
+      return false;
+    }
+  }
+  function closeReplayTimer(){if(state.replayTimer){clearInterval(state.replayTimer);state.replayTimer=null;}}
+  async function backToLive() {
+    state.replay=false;state.replayDone=false;closeReplayTimer();
+    $('chart-mode').textContent='LIVE';
+    $('playback-info').textContent='Loading saved observations and returning to the live WebSocket feed…';
+    await loadHistory();
+    $('playback-info').textContent='Live mode. Replay is available from the SQLite observations shown here.';
+    if(state.connection==='Subscribed' || state.connection==='Live')setHealth('Waiting for data','Subscribed; awaiting the next Yahoo quote');
+  }
+  function startReplay() {
+    if(state.replay)return;
+    if(!state.rows.length){$('playback-info').textContent='No saved observations yet. Let the feed run, then try Replay.';return;}
+    state.replay=true;state.replayDone=false;closeReplayTimer();resetChart();setLog([]);
+    $('chart-mode').textContent='REPLAY';setHealth('Replay','Showing recorded observations, not live quotes');
+    const replayRows=state.rows.slice(-120);let i=0;
+    $('playback-info').textContent='Replaying '+replayRows.length+' stored observations in source-time order…';
+    state.replayTimer=setInterval(()=>{
+      if(i>=replayRows.length){closeReplayTimer();state.replayDone=true;setHealth('Replay done','Select Live view to resume live updates');$('playback-info').textContent='Replay complete · '+replayRows.length+' recorded observations shown. Select Live view to resume.';return;}
+      addTick(replayRows[i++],true,true);
+      $('playback-info').textContent='Replay progress: '+i+' / '+replayRows.length+' saved observations';
+    },110);
+  }
+  $('replay-btn').addEventListener('click',startReplay);
+  $('live-btn').addEventListener('click',backToLive);
+  function connect() {
+    if(state.reconnect){clearTimeout(state.reconnect);state.reconnect=null;}
+    state.connection='Connecting';if(!state.replay)setHealth('Connecting','Opening WebSocket to backend');
+    const ws=new WebSocket(wsURL);state.socket=ws;
+    ws.onopen=()=>{state.connection='Connected';if(!state.replay)setHealth('Connected','Waiting for Yahoo Finance subscription');};
+    ws.onmessage=(event)=>{
+      let msg;try{msg=JSON.parse(event.data);}catch{return;}
+      if(msg.type==='status'){
+        if(msg.status==='subscribed'){state.connection='Subscribed';if(!state.replay)setHealth('Waiting','Connected to Yahoo · awaiting a quote');}
+        if(msg.status==='unavailable'){state.connection='Unavailable';if(!state.replay)setHealth('Unavailable','Yahoo feed unavailable · retrying');}
+      }
+      if(msg.type==='tick') {
+        state.connection='Live';state.lastReceive=Date.now();
+        if(!state.replay){addTick(msg,true,true);setHealth('Live','New observations are arriving');}
+      }
+    };
+    ws.onerror=()=>{if(!state.replay)setHealth('Connection error','Could not communicate with the backend');};
+    ws.onclose=()=>{
+      state.connection='Disconnected';
+      if(!state.replay)setHealth('Disconnected','Connection closed · retrying in 3 seconds');
+      state.reconnect=setTimeout(connect,3000);
+    };
+  }
+  setInterval(()=>{
+    if(state.lastSource!==null) {
+      const sec=Math.max(0,Math.floor((Date.now()-state.lastSource)/1000));
+      $('age').textContent=sec<60?sec+'s':sec<3600?Math.floor(sec/60)+'m '+sec%60+'s':Math.floor(sec/3600)+'h '+Math.floor((sec%3600)/60)+'m';
+    }
+    if(!state.replay && state.socket && state.socket.readyState===WebSocket.OPEN && state.lastReceive && Date.now()-state.lastReceive>25000 && state.connection==='Live')setHealth('Stale','No market observation received for 25+ seconds');
+  },1000);
+  (async()=>{await loadHistory();connect();})();
+})();
+</script>
+</body>
+</html>
