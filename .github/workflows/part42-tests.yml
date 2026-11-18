@@ -1,0 +1,25 @@
+name: ATLAS Part 4.2 checks
+on:
+  push:
+  pull_request:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install backend and test dependencies
+        run: python3 -m pip install fastapi 'uvicorn[standard]' yfinance websockets pytest httpx pandas
+      - name: Python SMA, account, and backtest verification
+        run: python3 -m pytest tests/test_part42.py -q
+      - name: Install browser test dependencies
+        run: |
+          npm install
+          npx playwright install --with-deps chromium
+      - name: Playwright browser tests
+        run: npx playwright test

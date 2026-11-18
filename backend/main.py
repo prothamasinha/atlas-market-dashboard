@@ -119,3 +119,6 @@ def show_dashboard():
     )
 
     return FileResponse(frontend_file)
+
+from backend.part42_routes import router as part42_router
+app.include_router(part42_router)

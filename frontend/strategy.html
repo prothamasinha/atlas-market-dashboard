@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ATLAS | Strategy Lab</title>
+<style>
+:root{color-scheme:dark;--bg:#080e17;--panel:#101b2a;--stroke:#26394f;--ink:#e8f0fa;--muted:#96a9bf;--green:#62dbb4;--red:#ff8596;--blue:#87b8ff;--gold:#f0bf73;--purple:#bd9cf2}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 75% -30%,#203353 0,transparent 50%),var(--bg);font:14px/1.6 system-ui,-apple-system,Segoe UI,sans-serif;color:var(--ink)}.wrap{max-width:1300px;padding:24px;margin:auto}
+header{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--stroke);padding:9px 0 22px;gap:12px;flex-wrap:wrap}.brand{letter-spacing:.25em;font-weight:850;font-size:20px}.sub{font-size:11px;letter-spacing:.16em;color:var(--muted);text-transform:uppercase}header a{color:#c5d6eb;text-decoration:none;border:1px solid var(--stroke);padding:8px 14px;border-radius:9px;font-weight:600}header a:hover{background:#16263a}h1{font-size:clamp(26px,4vw,39px);letter-spacing:-.04em;line-height:1.15;margin:0 0 10px}h2{font-size:16px;letter-spacing:-.015em;margin:0}p{margin:0}.intro{display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;margin:32px 0 22px}.eyebrow{font-weight:800;letter-spacing:.18em;color:var(--blue);font-size:11px;margin-bottom:10px}.muted{color:var(--muted)}.tag{border:1px solid #846d3d;background:#3e34224f;color:#f2ce8e;border-radius:99px;padding:8px 15px;font-weight:750;font-size:11px;align-self:flex-start}
+.controls{display:flex;align-items:end;gap:14px;flex-wrap:wrap;padding:17px;background:var(--panel);border:1px solid var(--stroke);border-radius:14px;margin-bottom:17px}.controls label{display:flex;flex-direction:column;gap:6px;color:var(--muted);font-size:11px;font-weight:750;text-transform:uppercase;letter-spacing:.07em}select,input,button{font:inherit;outline:none;border:1px solid #334961;color:var(--ink);background:#101f32;border-radius:8px;padding:10px 12px}select:focus,input:focus,button:focus{outline:2px solid #85b6ff}input{width:92px}button{background:#e5edf9;color:#0e2033;border:none;cursor:pointer;font-weight:800;padding:11px 20px}button:hover{background:#c3d9f8}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}.stat{border:1px solid var(--stroke);background:linear-gradient(130deg,#142235,#0c1624);border-radius:13px;padding:17px 20px;min-height:112px}.stat .label{font-size:12px;color:var(--muted);font-weight:600}.stat .value{font-variant-numeric:tabular-nums;font-weight:780;font-size:clamp(20px,2.4vw,30px);letter-spacing:-.04em;margin-top:9px}.stat .subvalue{color:#8197af;font-size:11px}.good{color:var(--green)}.bad{color:var(--red)}.main{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:16px;margin:17px 0}.panel{background:linear-gradient(150deg,#121f30,#0e1725);border:1px solid var(--stroke);border-radius:14px;padding:20px;overflow:hidden}.panel-head{display:flex;justify-content:space-between;gap:15px;align-items:center;flex-wrap:wrap;margin-bottom:8px}.legend{display:flex;flex-wrap:wrap;gap:16px;color:var(--muted);font-size:12px}.swatch{display:inline-block;width:17px;height:3px;vertical-align:middle;margin-right:5px;border-radius:2px}.chart-area{width:100%;overflow:hidden}.chart-area svg{width:100%;height:auto;display:block}.balance{display:grid;grid-template-columns:1fr auto;gap:12px;padding:13px 0;border-bottom:1px solid #203047;color:var(--muted)}.balance strong{color:var(--ink);font-variant-numeric:tabular-nums}.note{font-size:12px;color:var(--muted);line-height:1.7}.note-box{padding:13px 15px;background:#1b2a3d;border:1px solid #354660;border-radius:9px;margin-top:12px}.tables{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}table{width:100%;border-collapse:collapse;font-size:12px}th{text-align:left;font-size:11px;color:#9bb0ca;text-transform:uppercase;letter-spacing:.07em;padding:10px 8px;border-bottom:1px solid #34455b}td{padding:12px 8px;border-bottom:1px solid #26384f;font-variant-numeric:tabular-nums}.table-wrap{overflow-x:auto}td.right,th.right{text-align:right}.empty{padding:23px;color:var(--muted);text-align:center}.footer{color:var(--muted);font-size:12px;margin:20px 0 8px}.status{padding:9px 13px;color:#f4c4b8;background:#4f242b;border-radius:8px;margin-bottom:14px;display:none}.mini{font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;margin-top:20px}a{color:var(--blue)}@media(max-width:970px){.main{grid-template-columns:1fr}.tables{grid-template-columns:1fr}}@media(max-width:690px){.stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.wrap{padding:14px}.controls{gap:11px}h1{font-size:28px}.panel{padding:13px}.stat{padding:13px}}
+</style>
+</head>
+<body><div class="wrap">
+<header><div><div class="brand">ATLAS <span style="color:var(--blue)">/</span> LAB</div><div class="sub">Market Intelligence · Part 4.2</div></div><nav><a href="/dashboard">Live market dashboard</a></nav></header>
+<section class="intro"><div><div class="eyebrow">Strategy & Backtesting</div><h1>SMA Crossover Workstation</h1><p class="muted">Long-only simulated BTC-USD trading · completed 1-minute candles · no real orders</p></div><div id="sourceBadge" class="tag" data-testid="source-badge">Loading strategy…</div></section>
+<div id="error" class="status" role="alert"></div>
+<section class="controls" aria-label="Strategy controls">
+<label>Data source<select id="dataMode" data-testid="data-mode"><option value="sample">Synthetic demonstration</option><option value="saved">Saved BTC-USD observations</option></select></label>
+<label>Short SMA<input id="shortLen" type="number" min="2" max="100" value="5" /></label>
+<label>Long SMA<input id="longLen" type="number" min="3" max="200" value="20" /></label>
+<button id="runBtn" type="button">Run backtest</button>
+<span class="muted" id="candleCount">Waiting for data</span>
+</section>
+<section class="stat-grid">
+<div class="stat"><div class="label">Ending equity</div><div id="finalEquity" data-testid="final-equity" class="value">—</div><div class="subvalue">Initial cash $10,000</div></div>
+<div class="stat"><div class="label">Net P&L</div><div id="netPnl" class="value">—</div><div id="returnPct" class="subvalue">—</div></div>
+<div class="stat"><div class="label">Max drawdown</div><div id="maxDrawdown" class="value">—</div><div class="subvalue">Bar-close equity sampling</div></div>
+<div class="stat"><div class="label">Executed fills</div><div id="numFills" data-testid="fill-count" class="value">—</div><div id="winRate" class="subvalue">—</div></div>
+</section>
+<div class="main">
+<section class="panel"><div class="panel-head"><h2>BTC-USD · Price and moving averages</h2><div class="legend"><span><span class="swatch" style="background:var(--ink)"></span>Close</span><span><span class="swatch" style="background:var(--blue)"></span>Short SMA</span><span><span class="swatch" style="background:var(--purple)"></span>Long SMA</span><span class="good">▲ BUY</span><span class="bad">▼ SELL</span></div></div><div id="priceChart" class="chart-area" data-testid="price-chart"></div><p class="note">Signal markers occur after the candle closes. Any simulated fill occurs at the next consecutive candle's opening quote.</p><div class="mini">Account equity</div><div id="equityChart" class="chart-area"></div></section>
+<aside class="panel"><h2>Paper account</h2><div class="balance"><span>Available cash</span><strong id="cash">—</strong></div><div class="balance"><span>BTC position</span><strong id="position">—</strong></div><div class="balance"><span>Cost basis</span><strong id="basis">—</strong></div><div class="balance"><span>Realized P&L</span><strong id="realized">—</strong></div><div class="balance"><span>Unrealized P&L</span><strong id="unrealized">—</strong></div><div class="note-box note"><strong style="color:var(--ink)">Execution assumptions</strong><p>$2,000 notional on buy; 0.10% per-fill fee; 0.05% adverse slippage; fractional BTC permitted. No leverage, short selling, or real broker connection.</p></div><div class="note-box note"><strong style="color:var(--ink)">Interpretation</strong><p id="interpretation">Loading…</p></div></aside>
+</div>
+<section class="tables">
+<div class="panel"><div class="panel-head"><h2>Orders & decisions</h2><span class="muted" id="numOrders">—</span></div><div class="table-wrap"><table><thead><tr><th>Decision (UTC)</th><th>Side</th><th>Status</th></tr></thead><tbody id="orders"></tbody></table></div></div>
+<div class="panel"><div class="panel-head"><h2>Executed fills</h2><span class="muted">Simulated only</span></div><div class="table-wrap"><table><thead><tr><th>Fill (UTC)</th><th>Side</th><th class="right">Price</th><th class="right">Qty BTC</th><th class="right">Fee</th></tr></thead><tbody id="fills"></tbody></table></div></div>
+</section>
+<div class="footer">Educational strategy backtester. Incomplete current candles are excluded, missing minutes are not fabricated, and historical results do not predict future outcomes. Synthetic demonstrations are not historical-market performance.</div>
+</div>
+<script>
+const $ = id => document.getElementById(id);
+const usd = v => new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumFractionDigits:2}).format(v);
+const number = v => Number(v).toLocaleString('en-US',{maximumFractionDigits:6});
+const date = t => new Date(t*1000).toISOString().slice(11,19);
+const safe = v => String(v).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+function graph(items, keys, colors, markerKey, fill=false){
+  const w=900,h=fill?175:310,p={l:67,r:18,t:21,b:35};
+  if(!items.length)return '<div class="empty">No completed candles found. Collect more history or use synthetic demonstration.</div>';
+  const n=items.length, vals=items.flatMap(d=>keys.map(k=>d[k]).filter(v=>v!==null&&Number.isFinite(v)));
+  if(!vals.length)return '<div class="empty">Not enough completed candles to calculate this indicator.</div>';
+  let min=Math.min(...vals),max=Math.max(...vals);const pad=(max-min||1)*.12;min-=pad;max+=pad;
+  const x=i=>p.l+i*(w-p.l-p.r)/Math.max(1,n-1),y=v=>p.t+(max-v)*(h-p.t-p.b)/(max-min);
+  let out=`<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="${fill?'Account equity':'BTC-USD closing prices and moving averages'}" xmlns="http://www.w3.org/2000/svg">`;
+  for(let j=0;j<=4;j++){let yy=p.t+j*(h-p.t-p.b)/4;let val=max-(max-min)*j/4;out+=`<line x1="${p.l}" y1="${yy}" x2="${w-p.r}" y2="${yy}" stroke="#26384f" stroke-dasharray="3 6"/><text x="${p.l-9}" y="${yy+4}" fill="#8a9db5" text-anchor="end" font-size="11">${usd(val)}</text>`;}
+  for(let j=0;j<5;j++){let i=Math.round((n-1)*j/4);out+=`<text x="${x(i)}" y="${h-10}" fill="#8a9db5" text-anchor="middle" font-size="11">${date(items[i].time)}</text>`;}
+  for(let k=0;k<keys.length;k++){
+    let segment=[];function write(){if(segment.length){out+=`<path d="${segment.join(' ')}" fill="none" stroke="${colors[k]}" stroke-width="${k===0?2.3:2.0}" stroke-linecap="round" stroke-linejoin="round"/>`;segment=[];}}
+    for(let i=0;i<n;i++){
+      const valid=items[i][keys[k]]!==null&&Number.isFinite(items[i][keys[k]]);
+      if(!valid){write();continue;}
+      segment.push(`${segment.length?'L':'M'} ${x(i).toFixed(1)} ${y(items[i][keys[k]]).toFixed(1)}`);
+    } write();
+  }
+  if(markerKey)items.forEach((d,i)=>{if(d[markerKey]){let buy=d[markerKey]==='BUY';let yy=y(d.close);out+=`<circle cx="${x(i)}" cy="${yy}" r="6" fill="${buy?'#62dbb4':'#ff8596'}" stroke="#0f1826" stroke-width="2"><title>${safe(d[markerKey])} signal at ${date(d.time+60)} UTC</title></circle>`;}});
+  out+='</svg>';return out;
+}
+function resetError(message){$('error').style.display=message?'block':'none';$('error').textContent=message||'';}
+async function run(){
+  resetError('');$('runBtn').disabled=true;$('runBtn').textContent='Calculating…';
+  const mode=$('dataMode').value,short=Number($('shortLen').value),long=Number($('longLen').value);
+  try{
+    const r=await fetch(`/api/part42?data=${encodeURIComponent(mode)}&short=${short}&long=${long}`);
+    const d=await r.json();if(!r.ok)throw new Error(typeof d.detail==='string'?d.detail:'Unable to run backtest');
+    $('sourceBadge').textContent=d.data_source;$('sourceBadge').style.borderColor=mode==='sample'?'#846d3d':'#4c7964';
+    $('candleCount').textContent=d.candles.length+' completed candles';
+    $('finalEquity').textContent=usd(d.metrics.final_equity);
+    $('netPnl').textContent=usd(d.metrics.net_pnl);$('netPnl').className='value '+(d.metrics.net_pnl>=0?'good':'bad');
+    $('returnPct').textContent=d.metrics.return_pct.toFixed(2)+'% total return';
+    $('maxDrawdown').textContent=d.metrics.max_drawdown_pct.toFixed(2)+'%';
+    $('numFills').textContent=d.metrics.fills;
+    $('winRate').textContent=d.metrics.closed_trades?`${d.metrics.closed_trades} closed trades · ${d.metrics.win_rate_pct.toFixed(1)}% wins`:'No round-trip trades completed';
+    $('cash').textContent=usd(d.account.cash);$('position').textContent=number(d.account.position_btc);
+    $('basis').textContent=usd(d.account.cost_basis);$('realized').textContent=usd(d.account.realized_pnl);
+    $('unrealized').textContent=usd(d.account.unrealized_pnl);
+    $('interpretation').textContent=(d.sufficient_data?d.warning:'Insufficient consecutive history may prevent valid crossovers. '+d.warning);
+    $('priceChart').innerHTML=graph(d.candles,['close','sma_short','sma_long'],['#e8f0fa','#87b8ff','#bd9cf2'],'signal');
+    $('equityChart').innerHTML=graph(d.equity_curve,['equity'],['#62dbb4'],null,true);
+    $('numOrders').textContent=d.orders.length+' orders';
+    $('orders').innerHTML=d.orders.length?d.orders.map(o=>`<tr><td>${date(o.signal_time)}</td><td class="${o.side==='BUY'?'good':'bad'}">${o.side}</td><td>${safe(o.status)}</td></tr>`).join(''):'<tr><td colspan="3" class="empty">No signals / orders yet</td></tr>';
+    $('fills').innerHTML=d.fills.length?d.fills.map(f=>`<tr><td>${date(f.time)}</td><td class="${f.side==='BUY'?'good':'bad'}">${f.side}</td><td class="right">${usd(f.price)}</td><td class="right">${number(f.quantity)}</td><td class="right">${usd(f.fee)}</td></tr>`).join(''):'<tr><td colspan="5" class="empty">No executed trades yet</td></tr>';
+  }catch(err){resetError(err.message);}finally{$('runBtn').disabled=false;$('runBtn').textContent='Run backtest';}
+}
+$('runBtn').addEventListener('click',run);$('dataMode').addEventListener('change',run);run();
+</script>
+</body>
+</html>

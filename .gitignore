@@ -11,3 +11,8 @@ backend/market.db
 *.db-journal
 *.db-wal
 *.db-shm
+
+node_modules/
+test-results/
+playwright-report/
+frontend/index-backup*.html
